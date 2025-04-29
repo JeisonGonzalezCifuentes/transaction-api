@@ -1,5 +1,8 @@
 package com.example.transaction.domain.service;
 
+import com.example.transaction.domain.exception.InvalidAmountException;
+import com.example.transaction.domain.exception.InvalidTransactionDateException;
+import com.example.transaction.domain.exception.TransactionLimitExceededException;
 import com.example.transaction.domain.model.Transaction;
 import com.example.transaction.domain.repository.TransactionRepository;
 import com.example.transaction.domain.service.in.CreateTransaction;
@@ -31,20 +34,20 @@ public class TransactionService implements CreateTransaction {
   private void verifyDate(LocalDateTime transactionDate) {
     LocalDateTime now = LocalDateTime.now();
     if (transactionDate.isAfter(now)) {
-      throw new IllegalArgumentException("Transaction date cannot be after now");
+      throw new InvalidTransactionDateException("Transaction date cannot be after now");
     }
   }
 
   private void verifyAmount(BigDecimal amount) {
     if (BigDecimal.ZERO.compareTo(amount) > 0) {
-      throw new IllegalArgumentException("Amount cannot be negative");
+      throw new InvalidAmountException("Amount cannot be negative");
     }
   }
 
   private void verifyTransactionsLimit(String customerName) {
     int byCustomerName = transactionRepository.findByCustomerName(customerName);
     if (byCustomerName >= transactionLimit) {
-      throw new IllegalArgumentException("You have reached the maximum number of transactions");
+      throw new TransactionLimitExceededException("You have reached the maximum number of transactions");
     }
   }
 }
