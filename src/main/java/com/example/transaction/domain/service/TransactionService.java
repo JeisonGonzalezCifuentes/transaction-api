@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 public class TransactionService implements CreateTransaction {
 
   @Value("${transaction.limit}")
-  private int transactionLimit;
+  private int TRANSACTION_LIMIT;
 
   private final TransactionRepository transactionRepository;
 
@@ -46,7 +46,7 @@ public class TransactionService implements CreateTransaction {
 
   private void verifyTransactionsLimit(String customerName) {
     int byCustomerName = transactionRepository.findByCustomerName(customerName);
-    if (byCustomerName >= transactionLimit) {
+    if (byCustomerName >= TRANSACTION_LIMIT) {
       throw new TransactionLimitExceededException("You have reached the maximum number of transactions");
     }
   }
