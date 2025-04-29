@@ -5,9 +5,12 @@ import com.example.transaction.domain.repository.TransactionRepository;
 import com.example.transaction.domain.service.in.CreateTransaction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Service
 @RequiredArgsConstructor
 public class TransactionService implements CreateTransaction {
 
@@ -32,8 +35,8 @@ public class TransactionService implements CreateTransaction {
     }
   }
 
-  private void verifyAmount(Double amount) {
-    if (amount < 0) {
+  private void verifyAmount(BigDecimal amount) {
+    if (BigDecimal.ZERO.compareTo(amount) > 0) {
       throw new IllegalArgumentException("Amount cannot be negative");
     }
   }

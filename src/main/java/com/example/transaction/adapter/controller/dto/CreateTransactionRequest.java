@@ -1,10 +1,28 @@
 package com.example.transaction.adapter.controller.dto;
 
+import com.example.transaction.domain.model.Transaction;
+import lombok.Builder;
+import lombok.Value;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public record CreateTransactionRequest(
-    Integer amount,
-    String merchant,
-    String customerName,
-    LocalDateTime transactionDate) {
+@Value
+@Builder
+public class CreateTransactionRequest {
+
+  BigDecimal amount;
+  String merchant;
+  String customerName;
+  LocalDateTime transactionDate;
+
+  public Transaction toDomain() {
+    return Transaction.builder()
+        .amount(this.getAmount())
+        .merchant(this.getMerchant())
+        .customerName(this.getCustomerName())
+        .transactionDate(this.getTransactionDate())
+        .build();
+  }
+
 }

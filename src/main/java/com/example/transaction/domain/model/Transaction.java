@@ -1,18 +1,19 @@
 package com.example.transaction.domain.model;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Value;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Data
+@Value
 @Builder
 public class Transaction {
 
-  private final Integer id;
-  private final Double amount;
-  private final String merchant;
-  private final String customerName;
-  private final LocalDateTime transactionDate;
+  Integer id;
+  BigDecimal amount;
+  String merchant;
+  String customerName;
+  LocalDateTime transactionDate;
 
 }
