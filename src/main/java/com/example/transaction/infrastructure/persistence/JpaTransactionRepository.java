@@ -9,6 +9,7 @@ import java.util.List;
 @Repository
 public interface JpaTransactionRepository extends JpaRepository<TransactionEntity, Integer> {
 
-  List<TransactionEntity> findByCustomerName(String customerName);
+  int countByAccountCustomerName(String customerName);
+  List<TransactionEntity> findAllByAccountNumber(String customerName);
 
 }

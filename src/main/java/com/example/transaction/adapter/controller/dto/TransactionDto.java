@@ -1,4 +1,4 @@
-package com.example.transaction.domain.model;
+package com.example.transaction.adapter.controller.dto;
 
 import lombok.Builder;
 import lombok.Value;
@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Value
 @Builder
-public class Transaction {
+public class TransactionDto {
 
   Integer id;
   String accountNumber;

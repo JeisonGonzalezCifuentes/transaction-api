@@ -1,6 +1,7 @@
 package com.example.transaction.adapter.controller;
 
 import com.example.transaction.adapter.controller.dto.CreateTransactionRequest;
+import com.example.transaction.adapter.controller.dto.TransactionDto;
 import com.example.transaction.adapter.controller.dto.UpdateTransactionRequest;
 import com.example.transaction.domain.model.Transaction;
 import com.example.transaction.domain.service.in.CreateTransaction;
@@ -23,13 +24,15 @@ public class TransactionController {
   private final RetrieveTransaction retrieveTransactionService;
 
   @PostMapping
-  public Transaction createTransaction(@RequestBody CreateTransactionRequest request) {
-    return createTransactionService.createTransaction(request.toDomain());
+  public TransactionDto createTransaction(@RequestBody CreateTransactionRequest request) {
+    Transaction transaction = createTransactionService.createTransaction(request.toDomain());
+    return getTransactionDto(transaction);
   }
 
   @PutMapping("/{id}")
-  public Transaction updateTransaction(@PathVariable Integer id, @RequestBody UpdateTransactionRequest request) {
-    return updateTransactionService.updateTransaction(id, request.getAmount(), request.getMerchant());
+  public TransactionDto updateTransaction(@PathVariable Integer id, @RequestBody UpdateTransactionRequest request) {
+    Transaction transaction = updateTransactionService.updateTransaction(id, request.getAmount(), request.getMerchant());
+    return getTransactionDto(transaction);
   }
 
   @DeleteMapping("/{id}")
@@ -37,9 +40,20 @@ public class TransactionController {
     deleteTransactionService.deleteTransaction(id);
   }
 
-  @GetMapping("/customer/{customerName}")
-  public List<Transaction> getTransactionsByCustomerName(@PathVariable String customerName) {
-    return retrieveTransactionService.findTransactionsByCustomerName(customerName);
+  @GetMapping("/by-account/{accountNumber}")
+  public List<TransactionDto> getTransactionsByAccountNumber(@PathVariable String accountNumber) {
+    return retrieveTransactionService.findTransactionsByAccountNumber(accountNumber)
+        .stream().map(TransactionController::getTransactionDto).toList();
+  }
+
+  private static TransactionDto getTransactionDto(Transaction domain) {
+    return TransactionDto.builder()
+        .id(domain.getId())
+        .accountNumber(domain.getAccountNumber())
+        .amount(domain.getAmount())
+        .merchant(domain.getMerchant())
+        .transactionDate(domain.getTransactionDate())
+        .build();
   }
 
 }

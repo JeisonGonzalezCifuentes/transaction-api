@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface RetrieveTransaction {
 
-  List<Transaction> findTransactionsByCustomerName(String customerName);
+  List<Transaction> findTransactionsByAccountNumber(String accountNumber);
 
 }

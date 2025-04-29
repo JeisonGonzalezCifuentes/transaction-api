@@ -14,19 +14,23 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 
 @Entity
-@Table(name = "transactions", indexes = {
-    @Index(name = "idx_customer_name", columnList = "customerName")
-})
+@Table(name = "transactions")
 public class TransactionEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
-  @Column(precision = 15, scale = 2)
+  @Column(precision = 15, scale = 2, nullable = false)
   private BigDecimal amount;
+
+  @Column(nullable = false)
   private String merchant;
-  private String customerName;
+
+  @Column(nullable = false)
   private String date;
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "account_id", nullable = false)
+  private AccountEntity account;
 }

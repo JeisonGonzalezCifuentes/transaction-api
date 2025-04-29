@@ -3,7 +3,7 @@ package com.example.transaction.domain.service;
 import com.example.transaction.domain.exception.InvalidAmountException;
 import com.example.transaction.domain.exception.InvalidTransactionDateException;
 import com.example.transaction.domain.exception.TransactionLimitExceededException;
-import com.example.transaction.domain.exception.TransactionNotFoundException;
+import com.example.transaction.domain.exception.ResourceNotFoundException;
 import com.example.transaction.domain.model.Transaction;
 import com.example.transaction.domain.repository.TransactionRepository;
 import com.example.transaction.domain.service.in.CreateTransaction;
@@ -30,7 +30,7 @@ public class TransactionService implements CreateTransaction, UpdateTransaction,
 
   @Override
   public Transaction createTransaction(Transaction transaction) {
-    verifyTransactionsLimit(transaction.getCustomerName());
+    verifyTransactionsLimit(transaction.getAccountNumber());
     verifyAmount(transaction.getAmount());
     verifyDate(transaction.getTransactionDate());
 
@@ -47,13 +47,13 @@ public class TransactionService implements CreateTransaction, UpdateTransaction,
           .id(id)
           .amount(amount)
           .merchant(merchant)
-          .customerName(existingTransaction.get().getCustomerName())
+          .accountNumber(existingTransaction.get().getAccountNumber())
           .transactionDate(existingTransaction.get().getTransactionDate())
           .build();
 
       return transactionRepository.save(transactionToUpdate);
     } else {
-      throw new TransactionNotFoundException("Transaction not found with id " + id);
+      throw new ResourceNotFoundException("Transaction not found with id " + id);
     }
   }
 
@@ -63,13 +63,13 @@ public class TransactionService implements CreateTransaction, UpdateTransaction,
     if (existingTransaction.isPresent()) {
       transactionRepository.delete(id);
     } else {
-      throw new TransactionNotFoundException("Transaction not found with id " + id);
+      throw new ResourceNotFoundException("Transaction not found with id " + id);
     }
   }
 
   @Override
-  public List<Transaction> findTransactionsByCustomerName(String customerName) {
-    return transactionRepository.findAllByCustomerName(customerName);
+  public List<Transaction> findTransactionsByAccountNumber(String accountNumber) {
+    return transactionRepository.findAllByAccountNumber(accountNumber);
   }
 
   private void verifyDate(LocalDateTime transactionDate) {

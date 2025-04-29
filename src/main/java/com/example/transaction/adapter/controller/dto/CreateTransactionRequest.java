@@ -13,14 +13,14 @@ public class CreateTransactionRequest {
 
   BigDecimal amount;
   String merchant;
-  String customerName;
+  String accountNumber;
   LocalDateTime transactionDate;
 
   public Transaction toDomain() {
     return Transaction.builder()
         .amount(this.getAmount())
         .merchant(this.getMerchant())
-        .customerName(this.getCustomerName())
+        .accountNumber(this.getAccountNumber())
         .transactionDate(this.getTransactionDate())
         .build();
   }

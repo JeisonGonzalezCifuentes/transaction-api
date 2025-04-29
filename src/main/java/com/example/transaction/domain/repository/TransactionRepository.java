@@ -15,6 +15,6 @@ public interface TransactionRepository {
 
   int findByCustomerName(String customerName);
 
-  List<Transaction> findAllByCustomerName(String customerName);
+  List<Transaction> findAllByAccountNumber(String accountNumber);
 
 }

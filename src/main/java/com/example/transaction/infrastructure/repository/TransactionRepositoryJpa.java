@@ -1,8 +1,11 @@
 package com.example.transaction.infrastructure.repository;
 
+import com.example.transaction.domain.exception.ResourceNotFoundException;
 import com.example.transaction.domain.model.Transaction;
 import com.example.transaction.domain.repository.TransactionRepository;
+import com.example.transaction.infrastructure.persistence.JpaAccountRepository;
 import com.example.transaction.infrastructure.persistence.JpaTransactionRepository;
+import com.example.transaction.infrastructure.repository.entity.AccountEntity;
 import com.example.transaction.infrastructure.repository.entity.TransactionEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -17,10 +20,15 @@ import java.util.Optional;
 public class TransactionRepositoryJpa implements TransactionRepository {
 
   private final JpaTransactionRepository jpaTransactionRepository;
+  private final JpaAccountRepository jpaAccountRepository;
 
   @Override
   public Transaction save(Transaction transaction) {
-    TransactionEntity entity = toEntity(transaction);
+    AccountEntity account = jpaAccountRepository
+        .findByNumber(transaction.getAccountNumber())
+        .orElseThrow(() -> new ResourceNotFoundException("Account not found with number: " + transaction.getAccountNumber()));
+
+    TransactionEntity entity = toEntity(transaction, account);
     TransactionEntity saved = jpaTransactionRepository.save(entity);
     return toDomain(saved);
   }
@@ -37,23 +45,22 @@ public class TransactionRepositoryJpa implements TransactionRepository {
 
   @Override
   public int findByCustomerName(String customerName) {
-    return jpaTransactionRepository.findByCustomerName(customerName).size();
+    return jpaTransactionRepository.countByAccountCustomerName(customerName);
   }
 
   @Override
-  public List<Transaction> findAllByCustomerName(String customerName) {
-    return jpaTransactionRepository.findByCustomerName(customerName).stream()
+  public List<Transaction> findAllByAccountNumber(String accountNumber) {
+    return jpaTransactionRepository.findAllByAccountNumber(accountNumber).stream()
         .map(TransactionRepositoryJpa::toDomain)
         .toList();
   }
 
-
-  private static TransactionEntity toEntity(Transaction domain) {
+  private static TransactionEntity toEntity(Transaction domain, AccountEntity account) {
     return TransactionEntity.builder()
         .id(domain.getId())
         .amount(domain.getAmount())
         .merchant(domain.getMerchant())
-        .customerName(domain.getCustomerName())
+        .account(account)
         .date(domain.getTransactionDate().toString())
         .build();
   }
@@ -63,8 +70,8 @@ public class TransactionRepositoryJpa implements TransactionRepository {
         .id(entity.getId())
         .amount(entity.getAmount())
         .merchant(entity.getMerchant())
-        .customerName(entity.getCustomerName())
         .transactionDate(LocalDateTime.parse(entity.getDate(), DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+        .accountNumber(entity.getAccount().getNumber())
         .build();
   }
 
