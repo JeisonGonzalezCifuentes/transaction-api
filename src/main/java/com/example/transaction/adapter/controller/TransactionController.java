@@ -8,6 +8,10 @@ import com.example.transaction.domain.service.in.CreateTransaction;
 import com.example.transaction.domain.service.in.DeleteTransaction;
 import com.example.transaction.domain.service.in.RetrieveTransaction;
 import com.example.transaction.domain.service.in.UpdateTransaction;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/transaction")
 @RequiredArgsConstructor
+@Tag(name = "Transactions", description = "Operations related to transaction management")
 public class TransactionController {
 
   private final CreateTransaction createTransactionService;
@@ -24,23 +29,42 @@ public class TransactionController {
   private final RetrieveTransaction retrieveTransactionService;
 
   @PostMapping
+  @Operation(summary = "Create a transaction", description = "Creates a new transaction for an account")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Transaction created successfully"),
+      @ApiResponse(responseCode = "404", description = "Account not found")
+  })
   public TransactionDto createTransaction(@RequestBody CreateTransactionRequest request) {
     Transaction transaction = createTransactionService.createTransaction(request.toDomain());
     return getTransactionDto(transaction);
   }
 
   @PutMapping("/{id}")
+  @Operation(summary = "Update a transaction", description = "Updates an existing transaction's amount and merchant")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Transaction updated successfully"),
+      @ApiResponse(responseCode = "404", description = "Transaction not found")
+  })
   public TransactionDto updateTransaction(@PathVariable Integer id, @RequestBody UpdateTransactionRequest request) {
     Transaction transaction = updateTransactionService.updateTransaction(id, request.getAmount(), request.getMerchant());
     return getTransactionDto(transaction);
   }
 
   @DeleteMapping("/{id}")
+  @Operation(summary = "Delete a transaction", description = "Deletes a transaction by its ID")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Transaction deleted successfully"),
+      @ApiResponse(responseCode = "404", description = "Transaction not found")
+  })
   public void deleteTransaction(@PathVariable Integer id) {
     deleteTransactionService.deleteTransaction(id);
   }
 
   @GetMapping("/by-account/{accountNumber}")
+  @Operation(summary = "Get transactions by account number", description = "Returns all transactions for a given account number")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Transactions retrieved successfully")
+  })
   public List<TransactionDto> getTransactionsByAccountNumber(@PathVariable String accountNumber) {
     return retrieveTransactionService.findTransactionsByAccountNumber(accountNumber)
         .stream().map(TransactionController::getTransactionDto).toList();
