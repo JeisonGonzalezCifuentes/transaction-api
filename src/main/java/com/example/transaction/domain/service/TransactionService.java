@@ -3,19 +3,25 @@ package com.example.transaction.domain.service;
 import com.example.transaction.domain.exception.InvalidAmountException;
 import com.example.transaction.domain.exception.InvalidTransactionDateException;
 import com.example.transaction.domain.exception.TransactionLimitExceededException;
+import com.example.transaction.domain.exception.TransactionNotFoundException;
 import com.example.transaction.domain.model.Transaction;
 import com.example.transaction.domain.repository.TransactionRepository;
 import com.example.transaction.domain.service.in.CreateTransaction;
+import com.example.transaction.domain.service.in.DeleteTransaction;
+import com.example.transaction.domain.service.in.RetrieveTransaction;
+import com.example.transaction.domain.service.in.UpdateTransaction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class TransactionService implements CreateTransaction {
+public class TransactionService implements CreateTransaction, UpdateTransaction, DeleteTransaction, RetrieveTransaction {
 
   @Value("${transaction.limit}")
   private int TRANSACTION_LIMIT;
@@ -29,6 +35,41 @@ public class TransactionService implements CreateTransaction {
     verifyDate(transaction.getTransactionDate());
 
     return transactionRepository.save(transaction);
+  }
+
+  @Override
+  public Transaction updateTransaction(Integer id, BigDecimal amount, String merchant) {
+    verifyAmount(amount);
+
+    Optional<Transaction> existingTransaction = transactionRepository.findById(id);
+    if (existingTransaction.isPresent()) {
+      Transaction transactionToUpdate = Transaction.builder()
+          .id(id)
+          .amount(amount)
+          .merchant(merchant)
+          .customerName(existingTransaction.get().getCustomerName())
+          .transactionDate(existingTransaction.get().getTransactionDate())
+          .build();
+
+      return transactionRepository.save(transactionToUpdate);
+    } else {
+      throw new TransactionNotFoundException("Transaction not found with id " + id);
+    }
+  }
+
+  @Override
+  public void deleteTransaction(Integer id) {
+    Optional<Transaction> existingTransaction = transactionRepository.findById(id);
+    if (existingTransaction.isPresent()) {
+      transactionRepository.delete(id);
+    } else {
+      throw new TransactionNotFoundException("Transaction not found with id " + id);
+    }
+  }
+
+  @Override
+  public List<Transaction> findTransactionsByCustomerName(String customerName) {
+    return transactionRepository.findAllByCustomerName(customerName);
   }
 
   private void verifyDate(LocalDateTime transactionDate) {
@@ -50,4 +91,5 @@ public class TransactionService implements CreateTransaction {
       throw new TransactionLimitExceededException("You have reached the maximum number of transactions");
     }
   }
+
 }

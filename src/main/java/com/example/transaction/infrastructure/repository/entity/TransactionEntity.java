@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 @Table(name = "transactions", indexes = {
     @Index(name = "idx_customer_name", columnList = "customerName")
 })
-public class Transactions {
+public class TransactionEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

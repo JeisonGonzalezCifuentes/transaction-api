@@ -3,12 +3,14 @@ package com.example.transaction.infrastructure.repository;
 import com.example.transaction.domain.model.Transaction;
 import com.example.transaction.domain.repository.TransactionRepository;
 import com.example.transaction.infrastructure.persistence.JpaTransactionRepository;
-import com.example.transaction.infrastructure.repository.entity.Transactions;
+import com.example.transaction.infrastructure.repository.entity.TransactionEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -18,10 +20,19 @@ public class TransactionRepositoryJpa implements TransactionRepository {
 
   @Override
   public Transaction save(Transaction transaction) {
-    Transactions entity = toEntity(transaction);
-
-    Transactions saved = jpaTransactionRepository.save(entity);
+    TransactionEntity entity = toEntity(transaction);
+    TransactionEntity saved = jpaTransactionRepository.save(entity);
     return toDomain(saved);
+  }
+
+  @Override
+  public Optional<Transaction> findById(Integer id) {
+    return jpaTransactionRepository.findById(id).map(TransactionRepositoryJpa::toDomain);
+  }
+
+  @Override
+  public void delete(Integer id) {
+    jpaTransactionRepository.deleteById(id);
   }
 
   @Override
@@ -29,9 +40,16 @@ public class TransactionRepositoryJpa implements TransactionRepository {
     return jpaTransactionRepository.findByCustomerName(customerName).size();
   }
 
+  @Override
+  public List<Transaction> findAllByCustomerName(String customerName) {
+    return jpaTransactionRepository.findByCustomerName(customerName).stream()
+        .map(TransactionRepositoryJpa::toDomain)
+        .toList();
+  }
 
-  private static Transactions toEntity(Transaction domain) {
-    return Transactions.builder()
+
+  private static TransactionEntity toEntity(Transaction domain) {
+    return TransactionEntity.builder()
         .id(domain.getId())
         .amount(domain.getAmount())
         .merchant(domain.getMerchant())
@@ -40,7 +58,7 @@ public class TransactionRepositoryJpa implements TransactionRepository {
         .build();
   }
 
-  private static Transaction toDomain(Transactions entity) {
+  private static Transaction toDomain(TransactionEntity entity) {
     return Transaction.builder()
         .id(entity.getId())
         .amount(entity.getAmount())

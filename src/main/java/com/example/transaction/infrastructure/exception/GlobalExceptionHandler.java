@@ -3,6 +3,7 @@ package com.example.transaction.infrastructure.exception;
 import com.example.transaction.domain.exception.InvalidAmountException;
 import com.example.transaction.domain.exception.InvalidTransactionDateException;
 import com.example.transaction.domain.exception.TransactionLimitExceededException;
+import com.example.transaction.domain.exception.TransactionNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -30,6 +31,17 @@ public class GlobalExceptionHandler {
         .timestamp(LocalDateTime.now())
         .status(HttpStatus.BAD_REQUEST.value())
         .error(ErrorCode.INVALID_AMOUNT.toString())
+        .message(exception.getMessage())
+        .build();
+    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(TransactionNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handleTransactionNotFoundException(TransactionNotFoundException exception) {
+    ErrorResponse errorResponse = ErrorResponse.builder()
+        .timestamp(LocalDateTime.now())
+        .status(HttpStatus.BAD_REQUEST.value())
+        .error(ErrorCode.TRANSACTION_NOT_FOUND.toString())
         .message(exception.getMessage())
         .build();
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
