@@ -36,9 +36,9 @@ public class TransactionService implements CreateTransaction, UpdateTransaction,
     Account account = accountRepository.findByNumber(transaction.getAccountNumber())
         .orElseThrow(() -> new ResourceNotFoundException("Account not found with number: " + transaction.getAccountNumber()));
 
-    verifyTransactionsLimit(account.getCustomerName());
     verifyAmount(transaction.getAmount());
     verifyDate(transaction.getTransactionDate());
+    verifyTransactionsLimit(account.getCustomerName());
 
     return transactionRepository.save(transaction);
   }
