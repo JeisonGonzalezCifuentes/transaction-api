@@ -4,7 +4,9 @@ import com.example.transaction.domain.exception.InvalidAmountException;
 import com.example.transaction.domain.exception.InvalidTransactionDateException;
 import com.example.transaction.domain.exception.TransactionLimitExceededException;
 import com.example.transaction.domain.exception.ResourceNotFoundException;
+import com.example.transaction.domain.model.Account;
 import com.example.transaction.domain.model.Transaction;
+import com.example.transaction.domain.repository.AccountRepository;
 import com.example.transaction.domain.repository.TransactionRepository;
 import com.example.transaction.domain.service.in.CreateTransaction;
 import com.example.transaction.domain.service.in.DeleteTransaction;
@@ -27,10 +29,14 @@ public class TransactionService implements CreateTransaction, UpdateTransaction,
   private int TRANSACTION_LIMIT;
 
   private final TransactionRepository transactionRepository;
+  private final AccountRepository accountRepository;
 
   @Override
   public Transaction createTransaction(Transaction transaction) {
-    verifyTransactionsLimit(transaction.getAccountNumber());
+    Account account = accountRepository.findByNumber(transaction.getAccountNumber())
+        .orElseThrow(() -> new ResourceNotFoundException("Account not found with number: " + transaction.getAccountNumber()));
+
+    verifyTransactionsLimit(account.getCustomerName());
     verifyAmount(transaction.getAmount());
     verifyDate(transaction.getTransactionDate());
 

@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -20,6 +21,11 @@ public class AccountRepositoryJpa implements AccountRepository {
     return jpaAccountRepository.findAll().stream()
         .map(AccountRepositoryJpa::toDomain)
         .toList();
+  }
+
+  @Override
+  public Optional<Account> findByNumber(String accountNumber) {
+    return jpaAccountRepository.findByNumber(accountNumber).map(AccountRepositoryJpa::toDomain);
   }
 
   private static Account toDomain(AccountEntity entity) {

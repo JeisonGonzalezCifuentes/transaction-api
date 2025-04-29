@@ -14,6 +14,8 @@ INSERT INTO accounts (id, number, customer_name) VALUES (12, 'ACC012', 'Daniela 
 INSERT INTO accounts (id, number, customer_name) VALUES (13, 'ACC013', 'Francisco Méndez');
 INSERT INTO accounts (id, number, customer_name) VALUES (14, 'ACC014', 'Camila Morales');
 INSERT INTO accounts (id, number, customer_name) VALUES (15, 'ACC015', 'Emilio Navarro');
+INSERT INTO accounts (id, number, customer_name) VALUES (16, 'ACC0016', 'Juan Pérez');
+INSERT INTO accounts (id, number, customer_name) VALUES (17, 'ACC017', 'Daniela Rojas');
 
 -- Insert transactions for various accounts
 INSERT INTO transactions (amount, merchant, date, account_id)
@@ -27,6 +29,9 @@ VALUES (1500.75, 'Netflix', '2025-04-26T18:45:00', 3);
 
 INSERT INTO transactions (amount, merchant, date, account_id)
 VALUES (300.00, 'Uber', '2025-04-25T09:15:00', 1);
+
+INSERT INTO transactions (amount, merchant, date, account_id)
+VALUES (30.00, 'Tenpo', '2025-04-25T09:15:00', 16);
 
 INSERT INTO transactions (amount, merchant, date, account_id)
 VALUES (700.00, 'Spotify', '2025-04-24T10:20:00', 2);
