@@ -24,8 +24,7 @@ public class AccountController {
 
   @Operation(summary = "Get all accounts", description = "Returns a list of all registered accounts")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "List of accounts returned successfully"),
-      @ApiResponse(responseCode = "500", description = "Internal server error")
+      @ApiResponse(responseCode = "200", description = "List of accounts returned successfully")
   })
   @GetMapping()
   public List<AccountDto> getAll() {
