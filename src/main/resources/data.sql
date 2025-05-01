@@ -64,4 +64,22 @@ INSERT INTO transactions (amount, merchant, date, account_id)
 VALUES (1300.00, 'Cinemark', '2025-04-15T14:30:00', 12);
 
 INSERT INTO transactions (amount, merchant, date, account_id)
+VALUES (1300.00, 'Cinemark', '2025-04-15T14:30:00', 12);
+
+INSERT INTO transactions (amount, merchant, date, account_id)
+VALUES (1300.00, 'Cinemark', '2025-04-15T14:30:00', 12);
+
+INSERT INTO transactions (amount, merchant, date, account_id)
+VALUES (1300.00, 'Cinemark', '2025-04-15T14:30:00', 12);
+
+INSERT INTO transactions (amount, merchant, date, account_id)
+VALUES (1300.00, 'Cinemark', '2025-04-15T14:30:00', 12);
+
+INSERT INTO transactions (amount, merchant, date, account_id)
+VALUES (1300.00, 'Cinemark', '2025-04-15T14:30:00', 12);
+
+INSERT INTO transactions (amount, merchant, date, account_id)
+VALUES (1300.00, 'Cinemark', '2025-04-15T14:30:00', 12);
+
+INSERT INTO transactions (amount, merchant, date, account_id)
 VALUES (400.00, 'La Polar', '2025-04-14T10:00:00', 13);
