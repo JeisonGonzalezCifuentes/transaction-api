@@ -14,10 +14,10 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-    String customerName = request.getHeader("customerName");
-    String clientIdentifier = customerName != null ? customerName : request.getRemoteAddr();
+    String origin = request.getHeader("origin");
+    String clientIdentifier = request.getRemoteAddr() + "-" + origin;
 
-    if (clientIdentifier == null || rateLimiterService.isRateLimitExceeded(clientIdentifier)) {
+    if (rateLimiterService.isRateLimitExceeded(clientIdentifier)) {
       response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
       response.getWriter().write("Rate limit exceeded. Try again later.");
       return false;
