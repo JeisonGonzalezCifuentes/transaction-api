@@ -3,6 +3,7 @@ package com.example.transaction.infrastructure.interceptor;
 import com.example.transaction.infrastructure.rate.RateLimiterService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,98 +22,46 @@ class RateLimitInterceptorTest {
 
   @Mock
   private RateLimiterService rateLimiterService;
-
   @Mock
   private HttpServletRequest request;
-
   @Mock
   private HttpServletResponse response;
+  @Mock
+  private PrintWriter writer;
 
   @InjectMocks
-  private RateLimitInterceptor rateLimitInterceptor;
+  private RateLimitInterceptor interceptor;
 
-  @Test
-  void preHandle_shouldAllowRequest_whenRateLimitNotExceeded() throws Exception {
-    // Given
-    String customerName = "Juan";
-    when(request.getHeader("customerName")).thenReturn(customerName);
-    when(rateLimiterService.isRateLimitExceeded(customerName)).thenReturn(false);
-
-    // When
-    boolean result = rateLimitInterceptor.preHandle(request, response, new Object());
-
-    // Then
-    assertTrue(result); // Request should be allowed
-    verify(response, never()).setStatus(anyInt()); // Status should not be set
+  @BeforeEach
+  void setUp() throws Exception {
+    var field = RateLimitInterceptor.class.getDeclaredField("rateLimiterService");
+    field.setAccessible(true);
+    field.set(interceptor, rateLimiterService);
   }
 
   @Test
-  void preHandle_shouldBlockRequest_whenRateLimitExceeded() throws Exception {
-    // Given
-    String customerName = "Juan";
-    when(request.getHeader("customerName")).thenReturn(customerName);
-    when(rateLimiterService.isRateLimitExceeded(customerName)).thenReturn(true);
+  void testPreHandle_AllowsRequest_WhenRateLimitNotExceeded() throws Exception {
+    when(request.getHeader("origin")).thenReturn("example.com");
+    when(request.getRemoteAddr()).thenReturn("192.168.0.1");
+    when(rateLimiterService.isRateLimitExceeded("192.168.0.1-example.com")).thenReturn(false);
 
-    PrintWriter printWriter = mock(PrintWriter.class);
-    when(response.getWriter()).thenReturn(printWriter);
+    boolean result = interceptor.preHandle(request, response, new Object());
 
-    // When
-    boolean result = rateLimitInterceptor.preHandle(request, response, new Object());
-
-    // Then
-    assertFalse(result); // Request should be blocked
-    verify(response).setStatus(HttpStatus.TOO_MANY_REQUESTS.value()); // Error status should be set
-    verify(response.getWriter()).write("Rate limit exceeded. Try again later."); // Check that write was called with the correct message
+    assertTrue(result);
+    verify(response, never()).setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
   }
 
   @Test
-  void preHandle_shouldAllowRequest_whenCustomerNameIsNullAndExistIp() throws Exception {
-    // Given
-    when(request.getHeader("customerName")).thenReturn(null);
-    when(request.getRemoteAddr()).thenReturn("ipAddressValue");
+  void testPreHandle_BlocksRequest_WhenRateLimitExceeded() throws Exception {
+    when(request.getHeader("origin")).thenReturn("example.com");
+    when(request.getRemoteAddr()).thenReturn("192.168.0.1");
+    when(rateLimiterService.isRateLimitExceeded("192.168.0.1-example.com")).thenReturn(true);
+    when(response.getWriter()).thenReturn(writer);
 
-    // When
-    boolean result = rateLimitInterceptor.preHandle(request, response, new Object());
+    boolean result = interceptor.preHandle(request, response, new Object());
 
-    // Then
-    assertTrue(result); // Request should be allowed
-    verify(response, never()).setStatus(anyInt()); // Status should not be set
-  }
-
-  @Test
-  void preHandle_shouldBlockRequest_whenCustomerNameIsNullAndExistIpAndRateLimitExceeded() throws Exception {
-    // Given
-    when(request.getHeader("customerName")).thenReturn(null);
-    when(request.getRemoteAddr()).thenReturn("ipAddressValue");
-    when(rateLimiterService.isRateLimitExceeded(request.getRemoteAddr())).thenReturn(true);
-
-    PrintWriter printWriter = mock(PrintWriter.class);
-    when(response.getWriter()).thenReturn(printWriter);
-
-    // When
-    boolean result = rateLimitInterceptor.preHandle(request, response, new Object());
-
-    // Then
-    assertFalse(result); // Request should be blocked
-    verify(response).setStatus(HttpStatus.TOO_MANY_REQUESTS.value()); // Error status should be set
-    verify(response.getWriter()).write("Rate limit exceeded. Try again later."); // Check that write was called with the correct message
-  }
-
-  @Test
-  void preHandle_shouldBlockRequest_whenCustomerNameIsNullAndIpIsNull() throws Exception {
-    // Given
-    when(request.getHeader("customerName")).thenReturn(null);
-    when(request.getRemoteAddr()).thenReturn(null);
-
-    PrintWriter printWriter = mock(PrintWriter.class);
-    when(response.getWriter()).thenReturn(printWriter);
-
-    // When
-    boolean result = rateLimitInterceptor.preHandle(request, response, new Object());
-
-    // Then
-    assertFalse(result); // Request should be blocked
-    verify(response).setStatus(HttpStatus.TOO_MANY_REQUESTS.value()); // Error status should be set
-    verify(response.getWriter()).write("Rate limit exceeded. Try again later."); // Check that write was called with the correct message
+    assertFalse(result);
+    verify(response).setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+    verify(writer).write("Rate limit exceeded. Try again later.");
   }
 }
